@@ -1,5 +1,3 @@
-import sys
-sys.path.append('./lib')
 import time
 import debugpy
 import hwinfo
