@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "makeDestPath",
+            "type": "shell",
+            "command": "ssh -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' ${config:sshUser}@${config:sshEndpoint} 'mkdir -p ~/stocks-minion'"
+        },
+        {
+            "label": "copyOnPi",
+            "type": "shell",
+            "command": "scp -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' ${file} ${config:sshUser}@${config:sshEndpoint}:~/stocks-minion/${fileBasename}"
+        },
+        {
+            "label": "copyAllOnPi",
+            "type": "shell",
+            "command": "scp -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' -r * ${config:sshUser}@${config:sshEndpoint}:~/stocks-minion"
+        },
+        {
+            "label": "startOnPi",
+            "type": "shell",
+            "detail": "ssh -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' ${config:sshUser}@${config:sshEndpoint} 'source .profile activate && workon cv && nohup python -m debugpy --listen 0.0.0.0:5678 --wait-for-client ~/stocks-minion/${fileBasename} > /dev/null 2>&1 &'",
+            "command": "ssh -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' ${config:sshUser}@${config:sshEndpoint} 'source .profile activate && workon cv && nohup python ~/stocks-minion/${fileBasename} > /dev/null 2>&1'"
+        },
+        {
+            "label": "wait",
+            "type": "shell",
+            "command": "timeout 5"
+        },
+        {
+            "label": "copyAndStartOnPi",
+            "dependsOrder": "sequence",
+            "dependsOn": ["makeDestPath", "copyAllOnPi", "cleanupOnPi", "startOnPi", "wait"]
+        },
+        {
+            "label": "cleanupOnPi",
+            "type": "shell",
+            "command": "ssh -i 'I:/Google Drive/Mike/Security/keys/mike-2/id_dsa-2048.key' ${config:sshUser}@${config:sshEndpoint} 'pkill -9 python > /dev/null 2>&1 &'"
+        },
+    ]
+}
